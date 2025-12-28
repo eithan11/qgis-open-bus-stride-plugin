@@ -55,7 +55,12 @@ class StrideAPIClient:
         
         # Log the request
         if self.feedback:
-            self.feedback.pushInfo(f'Requesting data from: {url.toString()}')
+            url_str = url.toString()
+            message = f"Requesting data from: <a href=\"{url_str}\">{url_str}</a>"
+            self.feedback.pushFormattedMessage(
+                message,
+                message
+            )
         
         # Execute the request
         data = self._execute_request(url)
