@@ -2,6 +2,7 @@ from qgis.core import QgsProcessingProvider
 from qgis.PyQt.QtGui import QIcon
 
 from .algorithms.get_locations import GetLocations
+from .algorithms.enrich_with_routes import EnrichWithRoutes
 
 class Provider(QgsProcessingProvider):
 
@@ -10,6 +11,7 @@ class Provider(QgsProcessingProvider):
     def loadAlgorithms(self):
         """ Load each algorithm into the current provider. """
         self.addAlgorithm(GetLocations())
+        self.addAlgorithm(EnrichWithRoutes())
 
     def id(self) -> str:
         """The ID of your plugin, used for identifying the provider.

@@ -68,7 +68,7 @@ class StrideAPIClient:
         # Validate response
         if not isinstance(data, list):
             if self.feedback:
-                self.feedback.pushInfo("Response did not contain a list of items.")
+                self.feedback.pushWarning("Response did not contain a list of items.")
             return []
         
         return data
@@ -103,12 +103,12 @@ class StrideAPIClient:
             QgsProcessingException: If the request fails or JSON parsing fails
         """
         request = QNetworkRequest(url)
-        reply = self.manager.get(request)
+        reply = self.manager.blockingGet(request)
         
         # Wait for the request to complete
-        loop = QEventLoop()
-        reply.finished.connect(loop.quit)
-        loop.exec()
+        # loop = QEventLoop()
+        # reply.finished.connect(loop.quit)
+        # loop.exec()
         
         try:
             # Check for network errors
