@@ -48,6 +48,7 @@ class EnrichWithRoutes(QgsProcessingAlgorithm):
         ('route_mkt', QVariant.String),
         ('route_direction', QVariant.String),
         ('route_alternative', QVariant.String),
+        ('route_desc', QVariant.String),
         ('agency_name', QVariant.String),
         ('route_type', QVariant.String),
     ]
@@ -405,9 +406,16 @@ class EnrichWithRoutes(QgsProcessingAlgorithm):
             # Add route fields (only those that were actually added as new fields)
             for field_name in new_route_fields:
                 if route_data:
-                    # Map field name to API key if needed
-                    api_key = self.GTFS_FIELD_MAP.get(field_name, field_name)
-                    value = route_data.get(api_key)
+                    # Special handling for route_desc (calculated field)
+                    if field_name == 'route_desc':
+                        route_mkt = route_data.get('route_mkt', '')
+                        route_direction = route_data.get('route_direction', '')
+                        route_alternative = route_data.get('route_alternative', '')
+                        value = f"{route_mkt}-{route_direction}-{route_alternative}"
+                    else:
+                        # Map field name to API key if needed
+                        api_key = self.GTFS_FIELD_MAP.get(field_name, field_name)
+                        value = route_data.get(api_key)
                     attributes.append(value if value is not None else NULL)
                 else:
                     attributes.append(NULL)
