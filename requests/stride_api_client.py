@@ -105,33 +105,23 @@ class StrideAPIClient:
         request = QNetworkRequest(url)
         reply = self.manager.blockingGet(request)
         
-        # Wait for the request to complete
-        # loop = QEventLoop()
-        # reply.finished.connect(loop.quit)
-        # loop.exec()
+        # Check for network errors
+        if reply.error() != QNetworkReply.NetworkError.NoError:
+            raise QgsProcessingException(
+                f"Network request failed: {reply.errorString()}"
+            )
         
+        # Check HTTP status code
+        status_code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
+        if status_code != 200:
+            raise QgsProcessingException(
+                f"API request failed with HTTP status code {status_code}"
+            )
+        
+        # Parse JSON response
         try:
-            # Check for network errors
-            if reply.error() != QNetworkReply.NetworkError.NoError:
-                raise QgsProcessingException(
-                    f"Network request failed: {reply.errorString()}"
-                )
-            
-            # Check HTTP status code
-            status_code = reply.attribute(QNetworkRequest.Attribute.HttpStatusCodeAttribute)
-            if status_code != 200:
-                raise QgsProcessingException(
-                    f"API request failed with HTTP status code {status_code}"
-                )
-            
-            # Parse JSON response
-            response_body = reply.readAll()
-            data = json.loads(bytes(response_body).decode('utf-8'))
-            
+            response_body = bytes(reply.content())
+            data = json.loads(response_body.decode('utf-8'))
             return data
-            
         except json.JSONDecodeError as e:
             raise QgsProcessingException(f"Failed to parse JSON response: {e}")
-        
-        finally:
-            reply.deleteLater()
